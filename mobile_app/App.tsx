@@ -601,6 +601,15 @@ function MainApp({ user, token, onLogout }: { user: User; token: string | null; 
     }
   };
 
+  const goToView = (key: string) => {
+    const keys = navItems.map(i => i.key);
+    const from = keys.indexOf(currentView);
+    const to   = keys.indexOf(key);
+    if (from === to) return;
+    navigateTo(key, to > from ? 'left' : 'right');
+    setMenuOpen(false);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       {/* Status Bar Background */}
@@ -617,115 +626,99 @@ function MainApp({ user, token, onLogout }: { user: User; token: string | null; 
           <View style={styles.edgeSwipeArea} />
         </PanGestureHandler>
 
-      {/* Mobile Header */}
-      <View style={styles.mobileHeader}>
-        <TouchableOpacity 
-          style={styles.hamburgerButton}
-          onPress={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? (
-            <CloseIcon size={24} color="#fff" />
-          ) : (
-            <MenuIcon size={24} color="#fff" />
-          )}
-        </TouchableOpacity>
-        
-        <Text style={styles.mobileHeaderTitle}>
-          <BrandText size={20} />
-          <Text style={styles.titleRest}>  RFID Wallet</Text>
-        </Text>
-        
-        <View style={styles.mobileHeaderRight}>
-          <View style={[styles.statusDot, isOnline && styles.statusDotOnline]} />
+        {/* Mobile Header */}
+        <View style={styles.mobileHeader}>
+          <TouchableOpacity 
+            style={styles.hamburgerButton}
+            onPress={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? (
+              <CloseIcon size={24} color="#fff" />
+            ) : (
+              <MenuIcon size={24} color="#fff" />
+            )}
+          </TouchableOpacity>
+          
+          <Text style={styles.mobileHeaderTitle}>
+            <BrandText size={20} />
+            <Text style={styles.titleRest}>  RFID Wallet</Text>
+          </Text>
+          
+          <View style={styles.mobileHeaderRight}>
+            <View style={[styles.statusDot, isOnline && styles.statusDotOnline]} />
+          </View>
         </View>
-      </View>
 
-      {/* Sidebar / Mobile Menu */}
-      <View style={[styles.sidebar, menuOpen && styles.sidebarOpen]}>
+        {/* Sidebar / Mobile Menu */}
+        <View style={[styles.sidebar, menuOpen && styles.sidebarOpen]}>
 
-        {/* User Info */}
-        <View style={styles.sidebarHeader}>
-          <View style={styles.userInfoSection}>
-            <View style={styles.userIconWrapper}>
-              <UserIcon size={20} color="#6366f1" />
+          {/* User Info */}
+          <View style={styles.sidebarHeader}>
+            <View style={styles.userInfoSection}>
+              <View style={styles.userIconWrapper}>
+                <UserIcon size={20} color="#6366f1" />
+              </View>
+              <View style={styles.userDetails}>
+                <Text style={styles.userName}>{user.username}</Text>
+                <Text style={[styles.userRole, user.role ? styles[`userRole${user.role.charAt(0).toUpperCase() + user.role.slice(1)}` as keyof typeof styles] : styles.userRole]}>
+                  {getRoleLabel(user.role)}
+                </Text>
+              </View>
             </View>
-            <View style={styles.userDetails}>
-              <Text style={styles.userName}>{user.username}</Text>
-              <Text style={[styles.userRole, user.role ? styles[`userRole${user.role.charAt(0).toUpperCase() + user.role.slice(1)}` as keyof typeof styles] : styles.userRole]}>
-                {getRoleLabel(user.role)}
+            
+            {/* Connection Status */}
+            <View style={[styles.connStatusBadge, isOnline ? styles.connStatusOnline : styles.connStatusOffline]}>
+              <View style={[styles.connStatusDot, isOnline && styles.connStatusDotActive]} />
+              <Text style={styles.connStatusText}>
+                {isOnline ? 'ONLINE' : 'OFFLINE'}
               </Text>
             </View>
           </View>
-          
-          {/* Connection Status */}
-          <View style={[styles.connStatusBadge, isOnline ? styles.connStatusOnline : styles.connStatusOffline]}>
-            <View style={[styles.connStatusDot, isOnline && styles.connStatusDotActive]} />
-            <Text style={styles.connStatusText}>
-              {isOnline ? 'ONLINE' : 'OFFLINE'}
-            </Text>
+
+          {/* Navigation Items */}
+          <View style={styles.sidebarNav}>
+            {navItems.map(item => {
+              const IconComponent = item.IconComponent;
+              const isActive = currentView === item.key;
+              
+              return (
+                <TouchableOpacity
+                  key={item.key}
+                  style={[styles.navItem, isActive && styles.navItemActive]}
+                  onPress={() => goToView(item.key)}
+                >
+                  <IconComponent size={18} color={isActive ? '#6366f1' : '#8888aa'} />
+                  <Text style={[styles.navItemText, isActive && styles.navItemTextActive]}>
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
+
+          {/* Logout Button */}
+          <View style={styles.sidebarFooter}>
+            <TouchableOpacity 
+              style={styles.logoutButton} 
+              onPress={() => { setMenuOpen(false); onLogout(); }}
+            >
+              <LogoutIcon size={18} color="#8888aa" />
+              <Text style={styles.logoutButtonText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+
         </View>
 
-        {/* Navigation Items */}
-        <View style={styles.sidebarNav}>
-          {navItems.map(item => {
-            const IconComponent = item.IconComponent;
-            const isActive = currentView === item.key;
-            
-            return (
-              <TouchableOpacity
-                key={item.key}
-                style={[
-                  styles.navItem,
-                  isActive && styles.navItemActive
-                ]}
-                onPress={() => {
-                  setCurrentView(item.key);
-                  setScannedCard(null);
-                  setCart({});
-                  setMenuOpen(false);
-                }}
-              >
-                <IconComponent 
-                  size={18} 
-                  color={isActive ? '#6366f1' : '#8888aa'} 
-                />
-                <Text style={[
-                  styles.navItemText,
-                  isActive && styles.navItemTextActive
-                ]}>
-                  {item.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {/* Logout Button */}
-        <View style={styles.sidebarFooter}>
+        {/* Overlay for mobile menu */}
+        {menuOpen && (
           <TouchableOpacity 
-            style={styles.logoutButton} 
-            onPress={() => {
-              setMenuOpen(false);
-              onLogout();
-            }}
-          >
-            <LogoutIcon size={18} color="#8888aa" />
-            <Text style={styles.logoutButtonText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
+            style={styles.menuOverlay}
+            activeOpacity={1}
+            onPress={() => setMenuOpen(false)}
+          />
+        )}
 
-      </View>
-
-      {/* Overlay for mobile menu */}
-      {menuOpen && (
-        <TouchableOpacity 
-          style={styles.menuOverlay}
-          activeOpacity={1}
-          onPress={() => setMenuOpen(false)}
-        />
-      )}
-
+        {/* Main content */}
         <PanGestureHandler
           onHandlerStateChange={onSwipeGesture}
           activeOffsetX={[-15, 15]}
@@ -735,6 +728,29 @@ function MainApp({ user, token, onLogout }: { user: User; token: string | null; 
             {renderCurrentView()}
           </Animated.View>
         </PanGestureHandler>
+
+        {/* ── Bottom Navigation Bar ── */}
+        <View style={[styles.bottomNav, { paddingBottom: insets.bottom }]}>
+          {navItems.map(item => {
+            const IconComponent = item.IconComponent;
+            const isActive = currentView === item.key;
+            return (
+              <TouchableOpacity
+                key={item.key}
+                style={styles.bottomNavItem}
+                onPress={() => goToView(item.key)}
+                activeOpacity={0.7}
+              >
+                {/* Active indicator line */}
+                <View style={[styles.bottomNavIndicator, isActive && styles.bottomNavIndicatorActive]} />
+                <IconComponent size={20} color={isActive ? '#6366f1' : '#555570'} />
+                <Text style={[styles.bottomNavLabel, isActive && styles.bottomNavLabelActive]}>
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
       </View>
     </SafeAreaView>

@@ -34,9 +34,8 @@ mobileHeaderGrandTitle: {
     position: 'absolute',
     left: -280,
     top: 60,
-    bottom: 0,
+    bottom: 60,   // stop above bottom nav
     zIndex: 100,
-    // transition: 'left 0.3s',
   },
   sidebarOpen: {
     left: 0,
@@ -45,6 +44,7 @@ mobileHeaderGrandTitle: {
     flex: 1,
     backgroundColor: '#01010d',
     marginTop: 60,
+    marginBottom: 60,   // leave room for bottom nav
   },
 
   // Mobile Header
@@ -110,7 +110,7 @@ mobileHeaderGrandTitle: {
     top: 60,
     left: 0,
     right: 0,
-    bottom: 0,
+    bottom: 60,   // stop above bottom nav
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     zIndex: 99,
   },
@@ -1360,5 +1360,45 @@ mobileHeaderGrandTitle: {
     
     backgroundColor: '#ef4444',
     
+  },
+
+  // ── Bottom Navigation Bar ────────────────────────────────────────────────
+  bottomNav: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
+    flexDirection: 'row',
+    backgroundColor: '#0a0a12',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.08)',
+    zIndex: 101,
+  },
+  bottomNavItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 4,
+    gap: 3,
+  },
+  bottomNavIndicator: {
+    position: 'absolute',
+    top: 0,
+    width: 24,
+    height: 2,
+    backgroundColor: 'transparent',
+  },
+  bottomNavIndicatorActive: {
+    backgroundColor: '#6366f1',
+  },
+  bottomNavLabel: {
+    fontSize: 9,
+    color: '#555570',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+  },
+  bottomNavLabelActive: {
+    color: '#6366f1',
   },
 });
