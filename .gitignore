@@ -1,6 +1,5 @@
 node_modules/
 .expo/
-.vscode/
 *.db-shm
 *.db-wal
 server/wallet.db
